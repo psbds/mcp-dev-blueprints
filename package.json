@@ -1,5 +1,5 @@
 {
-  "name": "@psbds/mcp-dev-blueprints",
+  "name": "mcp-dev-blueprints",
   "version": "1.0.0",
   "description": "Enterprise application patterns MCP server with HTTP transport",
   "type": "module",
@@ -70,6 +70,6 @@
     "url": "https://github.com/psbds/mcp-dev-blueprints/issues"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "registry": "https://registry.npmjs.org"
   }
 }
