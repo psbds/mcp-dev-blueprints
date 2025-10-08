@@ -1,0 +1,17 @@
+{
+    "servers": {
+        "mcp-dev-blueprints-http": {
+            "type": "http",
+            "url": "http://localhost:3000/mcp-dev-blueprints"
+        },
+        "mcp-dev-blueprints-stdio": {
+            "type": "stdio",
+            "command": "npm",
+            "args": [
+                "run",
+                "dev:stdio"
+            ]
+        }
+    },
+    "inputs": []
+}

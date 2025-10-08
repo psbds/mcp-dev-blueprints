@@ -1,0 +1,137 @@
+name: Dev Branch PR Creation
+
+on:
+  push:
+    branches:
+      - dev
+      - develop
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  create-pr:
+    name: Create PR to Main
+    runs-on: ubuntu-latest
+    if: github.repository_owner == 'psbds'
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install semantic-release (dry-run)
+        run: |
+          npm install --no-save semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/github @semantic-release/npm
+
+      - name: Get next version
+        id: get-version
+        run: |
+          # Run semantic-release in dry-run mode to get the next version
+          NEXT_VERSION=$(npx semantic-release --dry-run --no-ci | grep -oP 'Published release \K[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+          
+          # If no version found, try alternative grep pattern
+          if [ -z "$NEXT_VERSION" ]; then
+            NEXT_VERSION=$(npx semantic-release --dry-run --no-ci | grep -oP 'next release version is \K[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+          fi
+          
+          # If still no version, use current version with patch bump
+          if [ -z "$NEXT_VERSION" ]; then
+            CURRENT_VERSION=$(node -p "require('./package.json').version")
+            NEXT_VERSION=$(echo $CURRENT_VERSION | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
+          fi
+          
+          echo "next-version=$NEXT_VERSION" >> $GITHUB_OUTPUT
+          echo "Next version will be: $NEXT_VERSION"
+
+      - name: Check if PR already exists
+        id: check-pr
+        run: |
+          # Check if a PR from dev to main already exists
+          EXISTING_PR=$(gh pr list --base main --head dev --state open --json number --jq '.[0].number' || echo "")
+          echo "existing-pr=$EXISTING_PR" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Pull Request
+        if: steps.check-pr.outputs.existing-pr == ''
+        run: |
+          NEXT_VERSION="${{ steps.get-version.outputs.next-version }}"
+          
+          # Create PR title with version
+          PR_TITLE="Release v${NEXT_VERSION} - Dev to Main"
+          
+          # Create PR body
+          PR_BODY="## Release v${NEXT_VERSION}
+
+          This PR contains changes from the dev branch ready for release.
+          
+          ### Changes
+          - Merging development branch changes
+          - Expected release version: **v${NEXT_VERSION}**
+          
+          ### Release Process
+          When this PR is merged to main, semantic-release will:
+          1. Analyze commits for version bump
+          2. Generate changelog
+          3. Create GitHub release
+          4. Publish to GitHub Packages
+          
+          ---
+          _This PR was automatically created by the Dev Branch PR Creation workflow._"
+          
+          # Create the PR
+          gh pr create \
+            --title "$PR_TITLE" \
+            --body "$PR_BODY" \
+            --base main \
+            --head dev \
+            --assignee @me
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update existing Pull Request
+        if: steps.check-pr.outputs.existing-pr != ''
+        run: |
+          NEXT_VERSION="${{ steps.get-version.outputs.next-version }}"
+          PR_NUMBER="${{ steps.check-pr.outputs.existing-pr }}"
+          
+          # Update PR title with new version
+          NEW_TITLE="Release v${NEXT_VERSION} - Dev to Main"
+          
+          # Update PR body
+          NEW_BODY="## Release v${NEXT_VERSION}
+
+          This PR contains changes from the dev branch ready for release.
+          
+          ### Changes
+          - Merging development branch changes
+          - Expected release version: **v${NEXT_VERSION}**
+          
+          ### Release Process
+          When this PR is merged to main, semantic-release will:
+          1. Analyze commits for version bump
+          2. Generate changelog
+          3. Create GitHub release
+          4. Publish to GitHub Packages
+          
+          ---
+          _This PR was automatically updated by the Dev Branch PR Creation workflow._
+          _Last updated: $(date)_"
+          
+          # Update the existing PR
+          gh pr edit $PR_NUMBER \
+            --title "$NEW_TITLE" \
+            --body "$NEW_BODY"
+            
+          echo "Updated existing PR #$PR_NUMBER with new version v$NEXT_VERSION"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

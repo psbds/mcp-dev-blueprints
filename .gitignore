@@ -137,3 +137,10 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Dev Only Local Files
+dev_kb/
+
+# Semantic Release
+.nyc_output
+coverage

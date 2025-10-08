@@ -1,0 +1,58 @@
+# Test Writing Guidelines
+
+Follow these rules when creating unit tests for this project:
+
+## Rule 1: Single Test File Per Module
+
+Always create only one test file per module being tested. Avoid creating multiple test files for the same source file.
+
+- **Correct**: `config-manager.test.ts` for testing `config-manager.ts`
+- **Incorrect**: `config-manager.test.ts` and `config-manager-edge-cases.test.ts` for the same module
+
+All test scenarios, including edge cases, error conditions, and integration tests, should be organized within the single test file using descriptive `describe` blocks.
+
+## Rule 2: Use Arrange, Act and Assert (AAA) Pattern
+
+Structure each test function with clear AAA comments to improve readability and maintainability:
+
+- **Arrange**: Set up test data and mock configurations (only if needed within the test function)
+- **Act**: Execute the function or method being tested
+- **Assert**: Verify the expected behavior and outcomes
+
+### Examples:
+
+```typescript
+it('should handle valid input correctly', async () => {
+  // Arrange
+  const testData = { id: 123, name: 'test' };
+  mockService.getData.mockReturnValue(testData);
+  
+  // Act
+  const result = await functionUnderTest(testData);
+  
+  // Assert
+  expect(result).toBeDefined();
+  expect(mockService.getData).toHaveBeenCalledWith(testData);
+});
+```
+
+**Note**: Skip the "Arrange" comment if all setup is done in `beforeEach` blocks:
+
+```typescript
+it('should use existing setup', async () => {
+  // Act
+  const result = await functionUnderTest();
+  
+  // Assert
+  expect(result).toBeDefined();
+});
+```
+
+For exception testing, combine Act & Assert:
+
+```typescript
+it('should throw error for invalid input', async () => {
+  // Act & Assert
+  await expect(functionUnderTest(invalidData)).rejects.toThrow('Expected error');
+});
+```

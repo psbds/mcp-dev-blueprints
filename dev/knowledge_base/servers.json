@@ -1,0 +1,10 @@
+[
+    {
+        "name": "mcp-dev-blueprints",
+        "path": "mcp-dev-blueprints",
+        "features": [
+            "azure/azure_features.json",
+            "mcp_blueprints_docs/mcp_blueprints_docs.json"
+        ]
+    }
+]

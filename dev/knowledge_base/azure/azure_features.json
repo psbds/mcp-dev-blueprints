@@ -1,0 +1,10 @@
+{
+    "tools": [],
+    "resources": [],
+    "prompts": [],
+    "custom_tools": [
+        "azure_status_check"
+    ],
+    "custom_resources": [],
+    "custom_prompts": []
+}

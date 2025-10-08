@@ -1,1 +1,1 @@
-# mcp-dev-blueprints
+# Enterprise App Patterns MCP Server

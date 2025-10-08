@@ -1,0 +1,54 @@
+{
+    "tools": [
+        {
+            "id": "mcp_blueprint_create_tool",
+            "title": "MCP Blueprint Tool Configuration Guide - JSON Schema, Content Types & Best Practices",
+            "description": "Always use this tool before creating or configuring tools in MCP Blueprints. It provides comprehensive guidelines for tool definition using JSON format, including required properties (id, title, description, content), supported content types (file, text, resource_link), and best practices for tool discovery. Use this tool when you need to: Create new MCP tools, Define tool schemas, Configure tool properties, Set up content references, Follow MCP Blueprint conventions, or ensure proper tool structure and naming conventions.",
+            "content": [
+                {
+                    "type": "file",
+                    "path": "../../docs/TOOLS.md"
+                }
+            ]
+        },
+        {
+            "id": "mcp_blueprint_configuration_guide",
+            "title": "MCP Dev Blueprints Configuration Guide - Server Setup, Feature Files & Knowledge Base Structure",
+            "description": "Provides instructions on how to set up and configure tools within MCP Blueprints, including best practices and examples. Covers hierarchical configuration system with server configuration (servers.json), feature files (*.json), content files, and custom tools. Use this tool when you need to: Configure MCP servers, Create servers.json files, Set up feature files, Define tools, prompts, and resources, Organize knowledge base structure, Configure file paths and references, Follow configuration best practices, or troubleshoot configuration issues. For specific instructions on how to configure a tool, call the 'mcp_blueprint_create_tool' tool.",
+            "content": [
+                {
+                    "type": "file",
+                    "path": "../../docs/CONFIGURATION.md"
+                }
+            ]
+        },
+        {
+            "id": "mcp_blueprint_running_guide",
+            "title": "MCP Blueprints Application - Installation and Running Guide",
+            "description": "Provides comprehensive instructions for running the MCP Dev Blueprints application. Covers prerequisites (Node.js 18.19.0+, npm, Git), installation steps, development mode setup, production deployment, configuration options, command line arguments, and environment variables. Use this tool when you need to: Set up the MCP Blueprints application, Run in development mode, Deploy in production, Configure server settings, Understand command line options, Set environment variables, or troubleshoot running issues.",
+            "content": [
+                {
+                    "type": "file",
+                    "path": "../../docs/RUNNING.md"
+                }
+            ]
+        }
+    ],
+    "resources": [
+        {
+            "id": "mcp_blueprint_github_repo",
+            "title": "MCP Blueprints GitHub Repository",
+            "description": "Access the official MCP Blueprints GitHub repository for source code, documentation, and updates.",
+            "content": [
+                {
+                    "type": "resource_link",
+                    "url": "https://github.com/psbds/mcp-dev-blueprints"
+                }
+            ]
+        }
+    ],
+    "prompts": [],
+    "custom_tools": [],
+    "custom_resources": [],
+    "custom_prompts": []
+}
