@@ -1,5 +1,4 @@
 // Forward the get function from feature_manager
-export { get_feature } from "./feature.js";
 export { registerCustomTool, registerCustomPrompt, registerCustomResource } from "./custom.js";
 
 // Forward all types from types.ts
