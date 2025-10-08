@@ -48,10 +48,7 @@ BREAKING CHANGE: The old authentication method is no longer supported
 
 ## Workflow
 
-1. **Dev Branch**: Push to `dev` branch
-   - Automatically creates/updates PR to `main` with expected version
-   
-2. **Main Branch**: Merge PR to `main` branch
+1. **Main Branch**: Merge PR to `main` branch
    - Automatically triggers release process
-   - Publishes to GitHub Packages
+   - Publishes to NPM
    - Creates GitHub release with changelog
