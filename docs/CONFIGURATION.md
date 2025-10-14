@@ -185,7 +185,10 @@ Every feature file follows this schema:
                 }
             ]
         }
-    ]
+    ],
+    "custom_tools": [],
+    "custom_resources": [],
+    "custom_prompts": []
 }
 ```
 
@@ -320,22 +323,13 @@ Reference custom implementations for advanced functionality:
 # Start development server
 npm run dev
 
-# Test specific knowledge base
+# Or Test specific knowledge base
 npx mcp-dev-blueprints --kb-path ./my-knowledge-base --mode http
-
-# Verify server responds
-curl http://localhost:3000/my-server-path
 ```
 
 ### Production Deployment
 
-```bash
-# Build optimized version
-npm run build
-
-# Start production server
-node dist/index.js --kb-path /path/to/production/kb --mode http
-```
+For produciton deployment check the [Build For Production Documentation](./BUILD_FOR_PRODUCTION.md)
 
 ### Configuration Validation
 
