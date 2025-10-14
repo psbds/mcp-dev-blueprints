@@ -1,92 +1,133 @@
-# Running the MCP Dev Blueprints
+# Running Guide
 
-This document provides comprehensive instructions for running the MCP Dev Blueprints Application
+**Deploy your MCP servers with confidence using multiple deployment strategies.**
 
+This guide covers everything from local development to production deployment, helping you choose the right approach for your use case.
 
-## Running From Source
+## 🎯 Quick Start Options
 
-### Prerequisites
-
-Before running this project, ensure you have the following installed:
-
-- **Node.js**: Version 18.19.0 or higher (as specified in package.json)
-- **npm**: Comes with Node.js installation
-- **Git**: For cloning the repository
-
-You can verify your Node.js version by running:
-```bash
-node --version
-```
-
-## Installation
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/psbds/mcp-dev-blueprints
-cd mcp-dev-blueprints
-```
-
-### 2. Install Dependencies
-
-```bash
-npm install
-```
-
-### 3. Running the Project
-
-The project provides several ways to run depending on your needs:
-
-#### 3.1 Development Mode (Recommended for Development)
-
-Development mode includes additional development tools and uses the extended knowledge base:
-
-```bash
-npm run dev
-```
-
-This command:
-- Builds the project with development configuration (`tsconfig.dev.json`)
-- Starts the server with development features enabled
-- Uses the `dev/knowledge_base` directory as the knowledge base path
-- Includes custom development tools from `dev/custom/tools.ts`
-
-The server will start on port **3000** by default (or the port specified in `HTTP_PORT` environment variable).
-
-#### 3.2. Production Mode
-
-##### 1. Build the Application
-```bash
-npm run build
-```
-
-##### 2. Start the Application
-```bash
-npm start  -- --kb-path <path-to-knowledge-base>
-```
-
-**Note**: Production mode requires you to specify the knowledge base path manually:
-
-For example:
-```bash
-node dist/index.js --kb-path ./dev/knowledge_base
-```
-The server will be available at `http://localhost:3000` (or your configured port)
+| Method | Best For | Command | Time to Start |
+|--------|----------|---------|---------------|
+| **NPX (Instant)** | Testing, quick demos | `npx mcp-dev-blueprints --kb-path .` | 30 seconds |
+| **Development Mode** | Active development | `npm run dev` | 1 minute |
+| **Production Build** | Enterprise deployment | `npm run build && npm start` | 2 minutes |
+| **Docker** | Containerized deployment | `docker run mcp-dev-blueprints` | 1 minute |
 
 ---
 
-## Configuration Options
+## 🚀 Method 1: NPX (Instant Deployment)
 
-### Command Line Arguments
+Perfect for quick testing and demonstrations.
 
-The server accepts the following command line arguments:
+### Prerequisites
+- **Node.js** 20+ ([Download here](https://nodejs.org/))
+- **npm** (included with Node.js)
 
-- `--kb-path` or `-k`: **(Required)** Path to the knowledge base directory
-  - Example: `--kb-path ./dev/knowledge_base`
-  - The path must exist and be a valid directory
+### Quick Start
+```bash
+# Create knowledge base
+mkdir my-knowledge-base && cd my-knowledge-base
 
-### Environment Variables
+# Create minimal configuration (copy from examples above)
+# ... create servers.json and feature files ...
 
-- `HTTP_PORT`: Port number for the HTTP server (default: 3000)
-  - Example: `HTTP_PORT=8080 npm run dev`
+# Start instantly 
+npx mcp-dev-blueprints --kb-path . --mode http
+
+# Server starts at http://localhost:3000 🎉
+```
+
+
+---
+
+## 🔧 Method 2: Development Mode
+
+Recommended for active development and customization.
+
+### Setup
+```bash
+# Clone the repository
+git clone https://github.com/psbds/mcp-dev-blueprints.git
+cd mcp-dev-blueprints
+
+# Install dependencies  
+npm install
+
+# Start development server
+npm run dev
+```
+
+### What Development Mode Provides
+- ✅ **Extended Knowledge Base** - Includes example configurations
+- ✅ **Custom Tools** - TypeScript extensions loaded from `dev/custom/`
+- ✅ **Debug Logging** - Verbose output for troubleshooting
+- ✅ **Source Maps** - Better error tracking and debugging
+
+### Development Commands
+
+```bash
+# Standard development startup
+npm run dev
+
+# HTTP mode (default)
+npm run dev:http  
+
+# STDIO mode (for direct MCP client integration)
+npm run dev:stdio
+
+# Watch mode (rebuilds on changes)
+npm run watch:dev
+
+# Run with custom knowledge base
+npm run dev -- --kb-path /path/to/custom/kb
+```
+
+---
+
+## 🏭 Method 3: Production Deployment
+
+For production deployment, check the documentation on [Building For Production](/docs/BUILD_FOR_PRODUCTION.md)
+
+---
+
+## 📋 Command Line Reference
+
+### Required Arguments
+
+| Argument | Short | Description | Example |
+|----------|-------|-------------|---------|
+| `--kb-path` | `-k` | Path to knowledge base directory | `--kb-path ./knowledge-base` |
+| `--mode` | `-m` | `http` | Server mode (`http` or `stdio`) | `--mode stdio` |
+
+### Example Commands
+
+```bash
+# Minimal startup
+npx mcp-dev-blueprints --kb-path . --mode stdio
+
+# Custom port and verbose logging  
+npx mcp-dev-blueprints --kb-path ./kb --mode http
+```
+
+---
+
+## ⚙️ Advanced Configuration
+
+### Environment Variables Reference
+
+| Variable | Purpose | Default | Example |
+|----------|---------|---------|---------|
+| `HTTP_PORT` | Server port | `3000` | `HTTP_PORT=8080` |
+
+## 🛠️ Troubleshooting
+
+### Common Issues
+
+| Issue | Symptoms | Solution |
+|-------|----------|----------|
+| **Port Already in Use** | `EADDRINUSE: address already in use` | Change port with `--port` or `HTTP_PORT` |
+| **Knowledge Base Not Found** | `KB directory not found` | Verify `--kb-path` points to existing directory |
+| **Permission Denied** | `EACCES: permission denied` | Check file permissions: `chmod -R 644 knowledge-base/` |
+| **JSON Syntax Error** | `Unexpected token` in logs | Validate JSON: `cat servers.json \| jq .` |
+| **Tool Not Loading** | Tool missing from client | Check feature file is listed in `servers.json` |
 

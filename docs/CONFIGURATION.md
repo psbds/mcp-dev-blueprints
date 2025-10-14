@@ -1,194 +1,462 @@
-# MCP Dev Blueprints Configuration Guide
+# Configuration Guide
 
-This guide explains how to configure MCP Dev Blueprints to create your own knowledge base servers with custom tools, prompts, and resources.
+**Master the art of building intelligent AI tools through configuration.**
 
-## Overview
+This comprehensive guide walks you through creating sophisticated MCP servers using MCP Dev Blueprints' powerful configuration system.
 
-MCP Dev Blueprints uses a hierarchical configuration system consisting of:
+## 🏗️ Architecture Overview
 
-1. **Server Configuration** (`servers.json`) - Defines available MCP servers and their feature collections
-2. **Feature Files** (`*.json`) - Define individual tools, prompts, and resources
-3. **Content Files** (optional) - Contain the actual instructions and documentation
-4. **Custom Tools** (optional) - TypeScript implementations for advanced functionality
+With MCP Dev Blueprints you can use a layered configuration approach that scales from simple setups to complex enterprise knowledge bases:
 
-## Server Configuration
+```
+📁 knowledge_base/
+├── 📄 servers.json              # Server registry & routing
+├── 📁 team-standards/           # Organized by domain
+│   ├── 📄 coding-rules.json    # Feature definitions
+│   ├── 📄 testing-guide.json   # More features
+│   └── 📁 content/              # Content files
+│       ├── 📄 style-guide.md   
+│       └── 📄 best-practices.md
+├── 📁 architecture/
+│   ├── 📄 patterns.json
+│   └── 📁 diagrams/
+└── 📁 custom/                   # Advanced extensions
+    └── 📄 tools.ts              # TypeScript implementations
+```
 
-### Creating servers.json
+## 📋 Configuration Layers
 
-The `servers.json` file defines the available MCP servers and their associated features. Create this file in your knowledge base directory:
+| Layer | File Type | Purpose | Complexity |
+|-------|-----------|---------|------------|
+| **Server Registry** | `servers.json` | Define available servers and routing | ⭐ Simple |
+| **Feature Definitions** | `*.json` | Configure tools, prompts, resources | ⭐⭐ Medium |
+| **Content Files** | `.md`, `.txt` | Store actual documentation | ⭐ Simple |
+| **Custom Tools** | `.ts` | Advanced programmatic functionality | ⭐⭐⭐ Advanced |
+
+---
+
+## 1️⃣ Server Configuration (`servers.json`)
+
+The foundation of your MCP setup - defines which servers are available and how they're organized.
+
+### Basic Example
 
 ```json
 [
     {
-        "name": "mcp-dev-blueprints",
-        "path": "mcp-dev-blueprints",
+        "name": "company-standards",
+        "path": "company-standards", 
         "features": [
-            "azure/azure_features.json",
-            "tests/test_features.json",
-            "mcp_blueprints_docs/mcp_blueprints_docs.json"
+            "coding/typescript-rules.json",
+            "testing/unit-test-guide.json",
+            "deployment/ci-cd-standards.json"
+        ]
+    },
+    {
+        "name": "architecture-patterns",
+        "path": "architecture",
+        "features": [
+            "patterns/microservices.json",
+            "patterns/event-driven.json"
         ]
     }
 ]
 ```
-*Note*: Feature files path should follow the path relative to the `servers.json` file
 
-### Server Configuration Properties
+### Configuration Properties
 
-| Property | Type | Required | Description | Example |
-|----------|------|----------|-------------|---------|
-| `name` | string | Yes | Unique identifier for the server | `"mcp-dev-blueprints"` |
-| `path` | string | Yes | Server path identifier (used for routing) | `"mcp-dev-blueprints"` |
-| `features` | array | Yes | List of feature file paths relative to the knowledge base directory | `["mcp_blueprints_docs/mcp_blueprints_docs.json"]` |
+| Property | Type | Required | Description | Example | Notes |
+|----------|------|----------|-------------|---------|--------|
+| `name` | string | ✅ | Unique server identifier | `"company-standards"` | Used internally and in client configurations |
+| `path` | string | ✅ | URL path segment for HTTP routing | `"company-standards"` | Appears in `http://localhost:3000/{path}` |
+| `features` | array | ✅ | List of feature files to load | `["coding/rules.json"]` | Paths relative to knowledge base directory |
 
-## Feature Files
+### Real-World Server Examples
 
-Feature files define the tools, prompts, and resources available in each server.
+#### Enterprise Knowledge Base
+```json
+[
+    {
+        "name": "engineering-standards",
+        "path": "engineering", 
+        "features": [
+            "frontend/react-guidelines.json",
+            "backend/api-standards.json",
+            "database/schema-conventions.json",
+            "security/authentication-patterns.json"
+        ]
+    },
+    {
+        "name": "platform-tools",
+        "path": "platform",
+        "features": [
+            "kubernetes/deployment-templates.json",
+            "monitoring/observability-setup.json",
+            "ci-cd/pipeline-standards.json"
+        ]
+    }
+]
+```
 
-For more information on Feature Files take a look at [Features.md](/docs/FEATURES.md)
+### 💡 Best Practices for Server Organization
 
-### Example
+- **Domain-Based Separation**: Group related knowledge into distinct servers
+- **Descriptive Names**: Use clear, self-explanatory server names
+- **Logical Paths**: Keep URL paths simple and memorable
+- **Feature Grouping**: Organize features by technology or domain area
+
+---
+
+## 2️⃣ Feature Files (`*.json`)
+
+Feature files are the heart of your MCP server - they define the actual tools, prompts, and resources that AI clients can access.
+
+### Feature File Structure
+
+Every feature file follows this schema:
+
+```json
+{
+    "tools": [],           // Interactive guidance and instructions
+    "resources": [],       // Static documentation and references  
+    "prompts": [],         // Pre-built conversation templates
+    "custom_tools": [],    // References to TypeScript implementations
+    "custom_resources": [],// Custom TypeScript resource providers
+    "custom_prompts": []   // Custom TypeScript prompt generators
+}
+```
+
+### Real-World Feature File Example
 
 ```json
 {
     "tools": [
         {
-            "id": "unit_test_instructions",
-            "title": "Unit Test Creation Guidelines & Best Practices for TypeScript (.ts) and Javascript (.js) Projects",
-            "description": "Always use this tool before creating unit tests in TypeScript (.ts) and Javascript (.js) projects. It provides essential guidelines and best practices, covering naming conventions, testing frameworks, directory structure, the AAA pattern, and project-specific conventions. Use this tool when you need to: Create unit tests, Write unit tests, Add tests for a file/module, Generate test cases for TypeScript (.ts) and Javascript (.js) code, Write test functions or test suites, Follow best practices for unit testing in TypeScript (.ts) and Javascript (.js). This tool will help ensure consistent test quality and project structure across all unit tests.",
+            "id": "typescript_coding_standards",
+            "title": "TypeScript Coding Standards & Best Practices",
+            "description": "Essential guidelines for TypeScript development including naming conventions, type definitions, error handling, and code organization. Use this tool when starting new TypeScript projects, code reviews, or establishing team standards.",
             "content": [
                 {
                     "type": "file",
-                    "path": "tests/unit_test_instructions.prompt"
+                    "path": "standards/typescript-guide.md"
+                },
+                {
+                    "type": "text", 
+                    "text": "## Quick Rules\n\n- Use `interface` for object shapes, `type` for unions\n- Prefer `const assertions` over type annotations\n- Always handle errors explicitly\n- Use meaningful variable names (no single letters except loops)"
+                }
+            ]
+        },
+        {
+            "id": "api_design_patterns",
+            "title": "RESTful API Design Patterns",
+            "description": "Comprehensive guide to designing consistent, maintainable REST APIs following our company standards.",
+            "content": [
+                {
+                    "type": "resource_link",
+                    "uri": "https://company-wiki.internal/api-guidelines",
+                    "name": "Company API Guidelines",
+                    "mimeType": "text/html",
+                    "description": "Internal API design standards and examples"
                 }
             ]
         }
     ],
-    "resources": [],
+    "resources": [
+        {
+            "id": "project_templates",
+            "title": "Project Template Library", 
+            "description": "Ready-to-use project templates for common application types",
+            "uri": "file://templates/",
+            "mimeType": "application/json"
+        }
+    ],
     "prompts": [
         {
-            "id": "create_unit_tests",
-            "title": "Create Unit Tests",
-            "description": "Generates unit tests following best practices and guidelines. Always use the unit_test_instructions tool before generating code.",
+            "id": "code_review_checklist",
+            "title": "Code Review Checklist Generator",
+            "description": "Generates a customized code review checklist based on the technology stack and project type.",
             "messages": [
                 {
                     "role": "user",
                     "content": {
                         "type": "text",
-                        "text": "You must create unit tests for a TypeScript (.ts) or Javascript (.js) project. MANDATORY STEPS:\n\n1. FIRST: Call the 'unit_test_instructions' tool to understand the unit test creation guidelines and best practices"
+                        "text": "Create a comprehensive code review checklist for this project. Include:\n\n1. Technology-specific best practices\n2. Security considerations\n3. Performance optimizations\n4. Code quality standards\n\nFirst, call the relevant coding standards tools to understand our guidelines."
                     }
                 }
             ]
         }
+    ]
+}
+```
+
+### 🛠️ Feature Types Explained
+
+#### Tools
+**Purpose**: Provide actionable guidance and instructions  
+**When to use**: Code generation, standards enforcement, step-by-step guides  
+**Example**: Coding standards, deployment checklists, troubleshooting guides
+
+#### Resources  
+**Purpose**: Reference static documentation and materials  
+**When to use**: API docs, architecture diagrams, external links  
+**Example**: Company wikis, external documentation, file repositories
+
+#### Prompts
+**Purpose**: Template conversations for common tasks  
+**When to use**: Standardized workflows, guided interactions  
+**Example**: Code review flows, project setup wizards, debugging sessions
+
+---
+
+## 3️⃣ Content Types & Advanced Configuration for Tools
+
+### Content Type Reference
+
+| Content Type | Use Case | Example | Best For |
+|--------------|----------|---------|----------|
+| `file` | External documentation | `{"type": "file", "path": "guides/setup.md"}` | Long-form content, reusable docs |
+| `text` | Inline instructions | `{"type": "text", "text": "Follow these steps..."}` | Quick rules, short guidelines |  
+| `resource_link` | External references | `{"type": "resource_link", "uri": "https://..."}` | APIs, external docs, tools |
+
+### File Content Configuration
+
+Reference external markdown or text files for comprehensive documentation:
+
+```json
+{
+    "type": "file",
+    "path": "standards/typescript-best-practices.md"
+}
+```
+
+**Path Resolution**: Relative to your knowledge base directory (`--kb-path`)
+
+### Text Content Configuration  
+
+Embed instructions directly in the feature file:
+
+```json
+{
+    "type": "text", 
+    "text": "## Code Review Checklist\n\n✅ All functions have JSDoc comments\n✅ Unit tests cover edge cases\n✅ No hardcoded secrets or URLs"
+}
+```
+
+**Best For**: Quick reference, checklists, short rules
+
+### Resource Link Configuration
+
+Link to external resources without embedding content:
+
+```json
+{
+    "type": "resource_link",
+    "uri": "https://company.atlassian.net/wiki/spaces/ENG/pages/123/API+Standards",
+    "name": "Company API Standards",
+    "mimeType": "text/html",
+    "description": "Complete API design guidelines with examples and validation rules"
+}
+```
+
+**Properties**:
+- `uri` (required): Full URL or file path
+- `name` (optional): Human-readable name  
+- `mimeType` (optional): Content type hint
+- `description` (optional): Brief explanation
+
+---
+
+## 4️⃣ Advanced Features
+
+### Multi-Content Tools
+
+Combine multiple content types for comprehensive guidance:
+
+```json
+{
+    "id": "comprehensive_testing_guide",
+    "title": "Complete Testing Strategy Guide",
+    "content": [
+        {
+            "type": "text",
+            "text": "## Testing Overview\n\nOur testing strategy follows the testing pyramid approach."
+        },
+        {
+            "type": "file", 
+            "path": "testing/unit-test-patterns.md"
+        },
+        {
+            "type": "resource_link",
+            "uri": "https://testing-library.com/docs/",
+            "name": "Testing Library Documentation"
+        }
+    ]
+}
+```
+
+### Custom TypeScript Extensions
+
+Reference custom implementations for advanced functionality:
+
+```json
+{
+    "custom_tools": [
+        "code_generator",
+        "project_analyzer",
+        "dependency_checker"
+    ]
+}
+```
+
+**Implementation**: Create corresponding functions in your `custom/tools.ts` file.
+
+---
+
+## 🚀 Deployment & Testing
+
+### Local Testing
+
+```bash
+# Start development server
+npm run dev
+
+# Test specific knowledge base
+npx mcp-dev-blueprints --kb-path ./my-knowledge-base --mode http
+
+# Verify server responds
+curl http://localhost:3000/my-server-path
+```
+
+### Production Deployment
+
+```bash
+# Build optimized version
+npm run build
+
+# Start production server
+node dist/index.js --kb-path /path/to/production/kb --mode http
+```
+
+### Configuration Validation
+
+The server automatically validates your configuration on startup:
+
+- ✅ **JSON Schema Validation**: Ensures proper structure
+- ✅ **File Path Verification**: Checks all referenced files exist
+- ✅ **ID Uniqueness**: Prevents duplicate tool/resource IDs
+- ✅ **Content Loading**: Validates all content is accessible
+
+---
+
+## 📚 Configuration Examples
+
+### Starter Template
+
+```json
+{
+    "tools": [
+        {
+            "id": "welcome_guide", 
+            "title": "Getting Started Guide",
+            "description": "Essential information for new team members",
+            "content": [{"type": "file", "path": "onboarding/welcome.md"}]
+        }
     ],
+    "resources": [
+        {
+            "id": "team_contacts",
+            "title": "Team Directory", 
+            "description": "Contact information and team structure",
+            "uri": "file://contacts/team-directory.json",
+            "mimeType": "application/json"
+        }
+    ],
+    "prompts": [],
     "custom_tools": [],
     "custom_resources": [],
     "custom_prompts": []
 }
 ```
 
-## Tools Configuration
+### Enterprise Example
 
-Tools provide instructions and guidelines to users. They can reference external files or contain inline content.
+See our [example knowledge base](../dev/knowledge_base/) for a complete enterprise setup with:
+- Multiple servers for different domains
+- Comprehensive tool libraries
+- Custom TypeScript extensions
+- Structured content organization
 
-For more information on Feature Files take a look at [Features.md](/docs/FEATURES.md)
+---
 
-### Example
-```json
-{
-    "id": "unit_test_instructions",
-    "title": "Unit Test Creation Guidelines & Best Practices for TypeScript (.ts) and Javascript (.js) Projects",
-    "description": "Always use this tool before creating unit tests in TypeScript (.ts) and Javascript (.js) projects. It provides essential guidelines and best practices, covering naming conventions, testing frameworks, directory structure, the AAA pattern, and project-specific conventions. Use this tool when you need to: Create unit tests, Write unit tests, Add tests for a file/module, Generate test cases for TypeScript (.ts) and Javascript (.js) code, Write test functions or test suites, Follow best practices for unit testing in TypeScript (.ts) and Javascript (.js). This tool will help ensure consistent test quality and project structure across all unit tests.",
-    "content": [
-        {
-            "type": "file",
-            "path": "tests/unit_test_instructions.prompt"
-        }
-    ]
-}
+## 🎯 Best Practices
+
+### 📁 Organization Strategy
+
+```
+knowledge_base/
+├── servers.json
+├── frontend/           # Domain-based grouping
+│   ├── react-standards.json
+│   └── content/
+├── backend/ 
+│   ├── api-guidelines.json
+│   └── content/
+└── shared/
+    ├── git-workflows.json
+    └── content/
 ```
 
+### ✍️ Content Guidelines
 
-## Resources Configuration
+- **Be Specific**: "Use `useState` for local state" vs. "Use React hooks"
+- **Include Examples**: Show code snippets and real implementations  
+- **Keep Current**: Regular reviews and updates
+- **Test Thoroughly**: Validate all tools work as expected
 
-Resources provide static documentation and reference materials.
+### 🔧 Tool Design Principles
 
-For more information on Feature Files take a look at [Resources.md](/docs/RESOURCES.md)
+1. **Single Purpose**: Each tool should solve one specific problem
+2. **Clear Triggers**: Description should specify exactly when to use the tool
+3. **Actionable Content**: Provide concrete steps, not general advice
+4. **Consistent Naming**: Use descriptive IDs that indicate functionality
 
-### Example
-```json
-{
-    "id": "resource_identifier",
-    "title": "Resource Title",
-    "description": "Resource description",
-    "uri": "file://path/to/resource.md",
-    "mimeType": "text/markdown"
-}
-```
+### 🔄 Maintenance Workflow  
 
-## Prompts Configuration
+1. **Version Control**: Track all configuration changes
+2. **Staging Environment**: Test changes before production
+3. **Documentation**: Keep internal docs updated
+4. **Monitoring**: Watch for errors and usage patterns
+5. **Feedback Loop**: Collect user feedback for improvements
 
-Prompts define interactive templates for common development tasks.
+---
 
-For more information on Feature Files take a look at [Prompts.md](/docs/PROMPTS.md)
+## 🆘 Troubleshooting
 
-### Example
-```json
-{
-    "id": "create_unit_tests",
-    "title": "Create Unit Tests",
-    "description": "Generates unit tests following best practices and guidelines. Always use the unit_test_instructions tool before generating code.",
-    "messages": [
-        {
-            "role": "user",
-            "content": {
-                "type": "text",
-                "text": "You must create unit tests for a TypeScript (.ts) or Javascript (.js) project. MANDATORY STEPS:\n\n1. FIRST: Call the 'unit_test_instructions' tool to understand the unit test creation guidelines and best practices"
-            }
-        }
-    ]
-}
-```
+### Common Issues
 
-## Custom Tools, Resources and Prompts
+| Problem | Cause | Solution |
+|---------|-------|----------|
+| `File not found` | Incorrect path in content | Check path relative to `--kb-path` |
+| `Duplicate tool ID` | Same ID used multiple times | Ensure unique IDs across all features |
+| `Server won't start` | JSON syntax error | Validate JSON with online tool |
+| `Tool not appearing` | Missing feature file reference | Check `servers.json` features array |
 
-You can bring your own TypeScript implementations that provide advanced functionality beyond static content. For more information take a look at [Customizing.md](/docs/CUSTOMIZING.md)
-
-## Running Your Configuration
-
-Once your configuration is complete, run the MCP server with:
+### Debug Commands
 
 ```bash
-npm run dev -- --kb-path ./dev/knowledge_base
+# Validate JSON syntax
+cat servers.json | jq .
+
+# Check file permissions
+ls -la knowledge_base/
+
+# Verbose server startup
+npx mcp-dev-blueprints --kb-path . --mode http --verbose
 ```
 
-The server will:
-1. Load `servers.json` to discover available servers
-2. Parse each feature file to register tools, prompts, and resources
-3. Load custom tools from the TypeScript implementations
-4. Start the MCP server with all configured functionality
+---
 
-## Best Practices
-
-### File Organization
-- Group related features in subdirectories
-- Use descriptive file and directory names
-- Keep instruction files close to their definitions
-- Use consistent naming conventions
-
-### Content Writing
-- Write clear, actionable instructions
-- Include examples and code snippets
-- Specify when and how to use each tool
-- Keep content up-to-date with project standards
-
-### Tool Design
-- Make tool purposes specific and focused
-- Include comprehensive descriptions
-- Use descriptive IDs that indicate functionality
-- Test tools thoroughly before deployment
-
-### Maintenance
-- Regularly review and update content files
-- Version control your knowledge base
-- Document changes and updates
-- Test configuration changes before deployment
+**Next Steps**: 
+- 📖 [Learn about Tools](TOOLS.md)
+- 🎨 [Explore Customization](CUSTOMIZING.md)  
+- 🚀 [Deployment Guide](RUNNING.md)
