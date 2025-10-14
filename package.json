@@ -1,6 +1,6 @@
 {
   "name": "mcp-dev-blueprints",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Enterprise application patterns MCP server with HTTP transport",
   "type": "module",
   "main": "dist/index.js",
