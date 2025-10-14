@@ -130,7 +130,7 @@ With the MCP Server Running locally, you can use it with VSCode by following tho
 
 4. **Start the server** - Press `F1` → `MCP: List Servers` → Select your server → `Start Server`
 
-5. **Test it** - Open Copilot Chat in `Agent Mode` and ask: *"What is MCP Dev Blueprints?"*, the following widget should appear on the screen.
+5. **Test it** - Open Copilot Chat in `Agent Mode` and ask: *"What are our org coding standards?"*, the following widget should appear on the screen.
 
     ![MCP Integration Example](docs/assets/quickstart_1.png)
 
