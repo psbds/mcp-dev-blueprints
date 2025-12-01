@@ -8,7 +8,7 @@ jest.mock('../../../src/server/http_server/handlers.js');
 
 const mockHandlers = handlers as jest.Mocked<typeof handlers>;
 
-describe('createRouter', () => {
+describe('server/http_server/router', () => {
   let mockRouter: express.Router;
   let mockHandlePost: jest.MockedFunction<any>;
   let mockHandleDefault: jest.MockedFunction<any>;

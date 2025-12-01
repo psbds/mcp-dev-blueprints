@@ -1,6 +1,6 @@
 import { ServerConfig, ServerConfigs } from '../../src/server/types.js';
 
-describe('Server Types', () => {
+describe('server/types', () => {
   describe('ServerConfig interface', () => {
     it('should allow creation of valid ServerConfig objects', () => {
       // Arrange & Act

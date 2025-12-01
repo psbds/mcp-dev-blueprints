@@ -30,7 +30,7 @@ import {
   createFileCache,
 } from '../../src/utils/file-utils.js';
 
-describe('file-utils', () => {
+describe('utils/file-utils', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     clearFileCache(); // Clear cache between tests

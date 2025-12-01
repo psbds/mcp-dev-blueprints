@@ -16,7 +16,7 @@ const mockTransportManager = transportManager as jest.Mocked<typeof transportMan
 const mockMcpServerFactory = mcpServerFactory as jest.Mocked<typeof mcpServerFactory>;
 const mockIsInitializeRequest = isInitializeRequest as jest.MockedFunction<typeof isInitializeRequest>;
 
-describe('handlers', () => {
+describe('server/http_server/handlers', () => {
   let mockRequest: Partial<express.Request>;
   let mockResponse: Partial<express.Response>;
   let mockTransport: jest.Mocked<StreamableHTTPServerTransport>;

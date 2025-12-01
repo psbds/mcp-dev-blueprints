@@ -1,0 +1,215 @@
+# Test Writing Guidelines
+
+Follow these rules when creating unit tests for this project:
+
+## Rule 1: Naming Describe Blocks
+
+Follow these naming conventions for all `describe` blocks to maintain consistency and readability:
+
+### First Describe Block (Module Identification)
+
+The first `describe` block should use the **module path relative to the source directory** (without the `src/` prefix and without the file extension).
+
+**Pattern**: `describe('<module-path>', () => { ... })`
+
+**Examples:**
+- For `src/config/config-manager.ts` → `describe('config/config-manager', ...)`
+- For `src/server/stdio_server/server.ts` → `describe('server/stdio_server/server', ...)`
+- For `src/utils/file-utils.ts` → `describe('utils/file-utils', ...)`
+
+This convention:
+- Clearly identifies the module being tested
+- Mirrors the actual file structure
+- Makes test output more readable and traceable
+- Follows TypeScript/Jest best practices
+
+### Nested Describe Blocks (Function/Method Grouping)
+
+Nested `describe` blocks should group tests by the **function or method name** being tested.
+
+**Pattern**: `describe('<functionName>', () => { ... })`
+
+**Examples:**
+```typescript
+describe('config/config-manager', () => {
+  describe('loadConfig', () => {
+    it('should load configuration from file', () => { ... });
+    it('should throw error when file not found', () => { ... });
+  });
+
+  describe('saveConfig', () => {
+    it('should save configuration to file', () => { ... });
+    it('should create directory if it does not exist', () => { ... });
+  });
+});
+```
+
+### Context-Specific Describe Blocks
+
+Use additional nested `describe` blocks to group tests by **context or scenario** when a function has multiple distinct behaviors.
+
+**Pattern**: `describe('<context description>', () => { ... })`
+
+**Examples:**
+```typescript
+describe('server/server', () => {
+  describe('start', () => {
+    describe('when configuration is valid', () => {
+      it('should initialize server successfully', () => { ... });
+      it('should register all features', () => { ... });
+    });
+
+    describe('when configuration is invalid', () => {
+      it('should throw validation error', () => { ... });
+      it('should not start server', () => { ... });
+    });
+
+    describe('when server is already running', () => {
+      it('should throw error', () => { ... });
+    });
+  });
+});
+```
+
+### Special Case: Testing Exports
+
+When testing index/barrel files that re-export from other modules, use descriptive names:
+
+**Examples:**
+```typescript
+describe('features/index', () => {
+  describe('exported functions', () => {
+    it('should re-export all functions from tool module', () => { ... });
+  });
+
+  describe('exported types', () => {
+    it('should re-export all type definitions', () => { ... });
+  });
+});
+```
+
+### Best Practices
+
+1. **Be descriptive**: Use clear, specific names that explain what is being tested
+2. **Use consistent patterns**: Follow the patterns above throughout the codebase
+3. **Group logically**: Organize tests by function first, then by context/scenario
+4. **Avoid redundancy**: Don't repeat "test" or "should" in describe blocks (save those for `it` blocks)
+5. **Keep it concise**: Describe blocks should be short and to the point
+
+## Rule 2: Single Test File Per Module
+
+Always create only one test file per module being tested. Avoid creating multiple test files for the same source file.
+
+- **Correct**: `config-manager.test.ts` for testing `config-manager.ts`
+- **Incorrect**: `config-manager.test.ts` and `config-manager-edge-cases.test.ts` for the same module
+
+All test scenarios, including edge cases, error conditions, and integration tests, should be organized within the single test file using descriptive `describe` blocks.
+
+## Rule 3: Use Arrange, Act and Assert (AAA) Pattern
+
+Structure each test function with clear AAA comments to improve readability and maintainability:
+
+- **Arrange**: Set up test data and mock configurations (only if needed within the test function)
+- **Act**: Execute the function or method being tested
+- **Assert**: Verify the expected behavior and outcomes
+
+### Examples:
+
+```typescript
+it('should handle valid input correctly', async () => {
+  // Arrange
+  const testData = { id: 123, name: 'test' };
+  mockService.getData.mockReturnValue(testData);
+  
+  // Act
+  const result = await functionUnderTest(testData);
+  
+  // Assert
+  expect(result).toBeDefined();
+  expect(mockService.getData).toHaveBeenCalledWith(testData);
+});
+```
+
+**Note**: Skip the "Arrange" comment if all setup is done in `beforeEach` blocks:
+
+```typescript
+it('should use existing setup', async () => {
+  // Act
+  const result = await functionUnderTest();
+  
+  // Assert
+  expect(result).toBeDefined();
+});
+```
+
+For exception testing, combine Act & Assert:
+
+```typescript
+it('should throw error for invalid input', async () => {
+  // Act & Assert
+  await expect(functionUnderTest(invalidData)).rejects.toThrow('Expected error');
+});
+```
+
+## Rule 4: Testing Index Files (Barrel Files)
+
+When testing index files that re-export functions and types from other modules, verify that the exports are correctly forwarded.
+
+### Testing Function Re-exports
+
+Validate that exported functions are the exact same reference as the source module:
+
+```typescript
+it('should re-export all functions from source module', async () => {
+  // Arrange
+  const indexModule = await import('../../src/features/index.js');
+  const sourceModule = await import('../../src/features/source.js');
+
+  // Assert
+  expect(indexModule.myFunction).toBeDefined();
+  expect(typeof indexModule.myFunction).toBe('function');
+  expect(indexModule.myFunction).toBe(sourceModule.myFunction);
+  
+  expect(indexModule.anotherFunction).toBeDefined();
+  expect(typeof indexModule.anotherFunction).toBe('function');
+  expect(indexModule.anotherFunction).toBe(sourceModule.anotherFunction);
+});
+```
+
+### Testing Type Re-exports
+
+Since TypeScript types are erased at runtime, use compile-time type assertions to verify type re-exports:
+
+```typescript
+import type {
+  MyType as IndexMyType,
+  AnotherType as IndexAnotherType
+} from '../../src/features/index.js';
+import type {
+  MyType as SourceMyType,
+  AnotherType as SourceAnotherType
+} from '../../src/features/source.js';
+
+describe('exported types', () => {
+  it('should re-export all type definitions from source module', () => {
+    // Arrange
+    // Use bidirectional type checking to ensure types are identical
+    type AssertMyType = IndexMyType extends SourceMyType ? SourceMyType extends IndexMyType ? true : false : false;
+    type AssertAnotherType = IndexAnotherType extends SourceAnotherType ? SourceAnotherType extends IndexAnotherType ? true : false : false;
+
+    const assertMyType: AssertMyType = true;
+    const assertAnotherType: AssertAnotherType = true;
+    
+    // Assert
+    // If types don't match, TypeScript compilation will fail
+    expect(assertMyType).toBe(true);
+    expect(assertAnotherType).toBe(true);
+  });
+});
+```
+
+**Key Points:**
+- Import types with aliases to distinguish between index and source exports
+- Use conditional types for bidirectional type checking (ensures exact match)
+- If type re-exports are incorrect, the test will fail at compile-time
+- Runtime assertions confirm successful compilation
