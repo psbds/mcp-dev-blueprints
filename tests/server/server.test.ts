@@ -68,7 +68,7 @@ import { ServerFeature } from '../../src/features/types.js';
 const mockConsoleLog = jest.spyOn(console, 'log').mockImplementation(() => {});
 const mockConsoleTable = jest.spyOn(console, 'table').mockImplementation(() => {});
 
-describe('Server Module', () => {
+describe('server/server', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockConnect.mockResolvedValue(undefined);

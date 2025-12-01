@@ -33,7 +33,7 @@ const mockFs = fs as jest.Mocked<typeof fs>;
 const mockConfigManager = configManager as jest.Mocked<typeof configManager>;
 const mockResolve = resolve as jest.MockedFunction<typeof resolve>;
 
-describe('args-parser', () => {
+describe('config/args-parser', () => {
   let mockProcessArgv: string[];
 
   beforeEach(() => {

@@ -24,7 +24,7 @@ jest.mock('../../src/config/config-manager.js', () => ({
 import boot from '../../src/server/boot.js';
 import { ServerConfig } from '../../src/server/types.js';
 
-describe('Boot Module', () => {
+describe('server/boot', () => {
   const mockServersConfig: ServerConfig[] = [
     {
       name: 'Test Server',

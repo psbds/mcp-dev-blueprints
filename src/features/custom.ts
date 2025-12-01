@@ -51,3 +51,9 @@ export function applyCustomResources(resource_ids: string[], server: McpServer):
         }
     });
 }
+
+export function clear(){
+    customFeatures.tools.clear();
+    customFeatures.prompts.clear();
+    customFeatures.resources.clear();
+}
