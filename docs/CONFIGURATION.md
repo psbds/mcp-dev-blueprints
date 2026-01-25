@@ -70,6 +70,7 @@ The foundation of your MCP setup - defines which servers are available and how t
 | `name` | string | ✅ | Unique server identifier | `"company-standards"` | Used internally and in client configurations |
 | `path` | string | ✅ | URL path segment for HTTP routing | `"company-standards"` | Appears in `http://localhost:3000/{path}` |
 | `features` | array | ✅ | List of feature files to load | `["coding/rules.json"]` | Paths relative to knowledge base directory |
+| `skills` | array | ❌ | List of skill files or glob patterns | `["skills/*.md", "docs/**/*.md"]` | Optional. Paths relative to knowledge base directory |
 
 ### Real-World Server Examples
 
@@ -84,6 +85,10 @@ The foundation of your MCP setup - defines which servers are available and how t
             "backend/api-standards.json",
             "database/schema-conventions.json",
             "security/authentication-patterns.json"
+        ],
+        "skills": [
+            "skills/github-actions-debugging.md",
+            "skills/code-review.md"
         ]
     },
     {
@@ -93,6 +98,9 @@ The foundation of your MCP setup - defines which servers are available and how t
             "kubernetes/deployment-templates.json",
             "monitoring/observability-setup.json",
             "ci-cd/pipeline-standards.json"
+        ],
+        "skills": [
+            "skills/docs/**/*.md"
         ]
     }
 ]
@@ -208,6 +216,179 @@ Every feature file follows this schema:
 **Purpose**: Template conversations for common tasks  
 **When to use**: Standardized workflows, guided interactions  
 **Example**: Code review flows, project setup wizards, debugging sessions
+
+---
+
+## 2.5️⃣ Skill Files (GitHub Copilot Skills Format)
+
+**New in version 1.1.0** - Skill files provide a simpler, markdown-based way to create tools using the [GitHub Copilot Skills format](https://docs.github.com/en/copilot/concepts/agents/about-agent-skills).
+
+### What are Skill Files?
+
+Skill files are markdown documents with YAML frontmatter that automatically become MCP tools. They're perfect for:
+- Quick tool creation without JSON configuration
+- Developer-friendly markdown format
+- Documentation that doubles as tools
+- Easy version control and collaboration
+
+### Basic Skill File Format
+
+```markdown
+---
+name: github-actions-failure-debugging
+description: Guide for debugging failing GitHub Actions workflows. Use this when asked to debug failing GitHub Actions workflows.
+---
+
+To debug failing GitHub Actions workflows in a pull request, follow this process:
+
+1. Use the `list_workflow_runs` tool to look up recent workflow runs
+2. Use the `summarize_job_log_failures` tool to get an AI summary of failures
+3. If needed, use `get_job_logs` for detailed failure logs
+4. Reproduce the failure locally
+5. Fix the issue and verify the fix
+```
+
+### Skill File Schema
+
+#### Frontmatter (YAML)
+```yaml
+---
+name: unique-skill-identifier      # Required: Tool ID (must be unique)
+description: Brief description     # Required: Tool description for AI
+---
+```
+
+#### Content (Markdown)
+Everything after the frontmatter becomes the tool's content. You can use:
+- Markdown formatting
+- Code blocks with syntax highlighting
+- Lists and tables
+- Links and references
+
+### Adding Skill Files to Server Configuration
+
+In your `servers.json`, use the `skills` property:
+
+```json
+{
+    "name": "my-server",
+    "path": "my-server",
+    "features": ["features.json"],
+    "skills": [
+        "skills/github-actions-debugging.md",
+        "skills/code-review.md",
+        "skills/docs/*.md",
+        "skills/**/*.md"
+    ]
+}
+```
+
+### Glob Pattern Support
+
+The `skills` property supports glob patterns for flexible file matching:
+
+| Pattern | Matches | Example |
+|---------|---------|---------|
+| `*.md` | All `.md` files in directory | `skills/*.md` matches `skills/file1.md`, `skills/file2.md` |
+| `**/*.md` | All `.md` files recursively | `skills/**/*.md` matches files in all subdirectories |
+| `file?.md` | Single character wildcard | `file1.md`, `file2.md` but not `file10.md` |
+| `{a,b}.md` | Multiple patterns | Matches `a.md` or `b.md` |
+
+### Real-World Skill File Examples
+
+#### Code Review Best Practices
+```markdown
+---
+name: code-review-best-practices
+description: Best practices for conducting code reviews
+---
+
+When conducting code reviews, follow these best practices:
+
+1. Review code within 24 hours of submission
+2. Focus on logic, architecture, and potential bugs
+3. Be constructive and specific in your feedback
+4. Check for test coverage
+5. Verify documentation is updated
+6. Look for security vulnerabilities
+7. Ensure code follows project conventions
+```
+
+#### Testing Strategy
+```markdown
+---
+name: testing-strategy
+description: Comprehensive testing strategy for software projects
+---
+
+A comprehensive testing strategy should include:
+
+## Unit Tests
+- Test individual functions and methods in isolation
+- Aim for high code coverage (80%+)
+- Use mocking for external dependencies
+
+## Integration Tests
+- Test how components work together
+- Verify database interactions
+- Test API endpoints
+
+## End-to-End Tests
+- Test complete user workflows
+- Verify critical business processes
+- Run in staging environment before production
+```
+
+### Skills vs. Feature Files
+
+| Aspect | Skill Files | Feature Files |
+|--------|-------------|---------------|
+| Format | Markdown + YAML frontmatter | JSON |
+| Complexity | Simple, single-purpose | Complex, multi-feature |
+| Content Types | Text only | Text, files, resource links |
+| Best For | Individual guides/docs | Comprehensive tool suites |
+| Learning Curve | ⭐ Easy | ⭐⭐ Medium |
+
+### When to Use Skill Files
+
+✅ **Use Skill Files when:**
+- Creating simple, single-purpose documentation tools
+- Content is primarily text/markdown
+- You want version control-friendly files
+- Team prefers markdown over JSON
+- Rapid prototyping and iteration
+
+❌ **Use Feature Files when:**
+- Need multiple content types (files, links, text)
+- Building complex multi-tool features
+- Require custom TypeScript extensions
+- Need fine-grained control over content
+
+### Organizing Skill Files
+
+```
+knowledge_base/
+├── servers.json
+├── skills/
+│   ├── github-actions-debugging.md
+│   ├── code-review.md
+│   ├── docs/
+│   │   ├── testing.md
+│   │   └── deployment.md
+│   └── troubleshooting/
+│       ├── database-issues.md
+│       └── performance-problems.md
+└── features/
+    └── comprehensive-features.json
+```
+
+### Skill File Best Practices
+
+1. **Clear Naming**: Use descriptive file names that indicate purpose
+2. **Specific Descriptions**: Help AI understand when to invoke the tool
+3. **Structured Content**: Use headings, lists, and code blocks
+4. **Actionable Guidance**: Provide step-by-step instructions
+5. **Version Control**: Treat skill files like code documentation
 
 ---
 
