@@ -11,6 +11,17 @@
                 "run",
                 "dev:stdio"
             ]
+        },
+        "mcp-dev-blueprints-stdio-prod": {
+            "type": "stdio",
+            "command": "npx",
+            "args": [
+                "mcp-dev-blueprints@latest",
+                "--kb-path",
+                "dev/knowledge_base",
+                "--mode",
+                "stdio"
+            ]
         }
     },
     "inputs": []
