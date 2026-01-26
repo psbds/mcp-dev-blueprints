@@ -8,6 +8,8 @@ export interface ServerConfig {
     path: string;
     /** Array of feature definition file paths relative to the knowledge base */
     features: string[];
+    /** Optional array of skill file paths or path patterns relative to the knowledge base */
+    skills?: string[];
 }
 
 /** Array of server configurations */

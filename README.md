@@ -88,7 +88,7 @@ cat > company-standards.json << 'EOF'
 }
 EOF
 
-# Start the server
+# Start the server in HTTP Mode
 npx mcp-dev-blueprints --kb-path . --mode http
 ```
 
@@ -117,6 +117,10 @@ With the MCP Server Running locally, you can use it with VSCode by following tho
 2. **Configure MCP** - Press `F1` → `MCP: Open User Configuration`
 
 3. **Add your server**:
+
+3.1. **If you using http mode**
+
+Obs: Make sure you're running your http server from the guide above
    ```json
    {
        "servers": {
@@ -128,9 +132,28 @@ With the MCP Server Running locally, you can use it with VSCode by following tho
    }
    ```
 
+3.2. **If you are using stdio mode**
+   ```json
+    {
+        "servers": {
+            "my-company-kb": {
+                "type": "stdio",
+                "command": "npx",
+                "args": [
+                    "mcp-dev-blueprints@latest",
+                    "--kb-path",
+                    "dev/knowledge_base", // Your Kb path here
+                    "--mode",
+                    "stdio"
+                ]
+            }
+        }
+    }
+   ```
+
 4. **Start the server** - Press `F1` → `MCP: List Servers` → Select your server → `Start Server`
 
-5. **Test it** - Open Copilot Chat in `Agent Mode` and ask: *"What are our org coding standards?"*, the following widget should appear on the screen.
+5. **Test it** - Open Copilot Chat in `Agent Mode` and something related to your knowledge base, example: *"What are our org coding standards?"*, the following widget should appear on the screen.
 
     ![MCP Integration Example](docs/assets/quickstart_1.png)
 

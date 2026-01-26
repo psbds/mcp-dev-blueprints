@@ -7,6 +7,8 @@ import { useResources } from "../features/resource.js";
 import { usePrompts } from "../features/prompt.js";
 import { applyCustomPrompts, applyCustomResources, applyCustomTools } from "../features/custom.js";
 import { Transport } from "@modelcontextprotocol/sdk/shared/transport";
+import { resolveGlobPatterns } from "../utils/glob-resolver.js";
+import { parseSkillFile, skillFileToTool } from "../utils/skill-parser.js";
 
 export async function initializeMcpServer(server_name: string, transport: Transport, beforeConnect: (mcpServer: McpServer) => void): Promise<void> {
     const server = new McpServer({
@@ -59,6 +61,38 @@ export function configure(serverConfig: ServerConfig): (server: McpServer) => vo
         custom_resources.push(...feature.custom_resources);
         custom_prompts.push(...feature.custom_prompts);
     });
+
+    // Process skill files if configured
+    if (serverConfig.skills && serverConfig.skills.length > 0) {
+        const kbPath = configManager.getKnowledgeBasePath();
+        const skillPaths = resolveGlobPatterns(kbPath, serverConfig.skills);
+        
+        const skillToolIds: string[] = [];
+        
+        skillPaths.forEach(skillPath => {
+            try {
+                const skillFile = parseSkillFile(kbPath, skillPath);
+                const tool = skillFileToTool(skillFile);
+                tools.push(tool);
+                skillToolIds.push(tool.id);
+            } catch (error) {
+                console.error(`Error loading skill file ${skillPath}:`, error);
+                throw error;
+            }
+        });
+
+        if (skillToolIds.length > 0) {
+            featuresInfo.push({
+                Feature: "Skills",
+                Tools: skillToolIds.join(", "),
+                CustomTools: "None",
+                Resources: "None",
+                CustomResources: "None",
+                Prompts: "None",
+                CustomPrompts: "None"
+            });
+        }
+    }
 
     console.table(featuresInfo);
 

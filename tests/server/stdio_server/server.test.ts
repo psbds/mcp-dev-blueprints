@@ -31,7 +31,8 @@ describe('server/stdio_server/server', () => {
         {
           name: 'server1',
           path: '/path1',
-          features: [{ id: 'feature1' }]
+          features: [{ id: 'feature1' }],
+          skills: ['skill1']
         }
       ];
 
@@ -44,7 +45,8 @@ describe('server/stdio_server/server', () => {
       expect(configure).toHaveBeenCalledWith({
         name: 'server1',
         path: '/stdio',
-        features: [{ id: 'feature1' }]
+        features: [{ id: 'feature1' }],
+        skills: ['skill1']
       });
       expect(initializeMcpServer).toHaveBeenCalledWith('server1', mockTransport, mockConfigureCb);
     });
@@ -55,12 +57,14 @@ describe('server/stdio_server/server', () => {
         {
           name: 'server1',
           path: '/path1',
-          features: [{ id: 'feature1' }]
+          features: [{ id: 'feature1' }],
+          skills: ['skill1']
         },
         {
           name: 'server2',
           path: '/path2',
-          features: [{ id: 'feature2' }, { id: 'feature3' }]
+          features: [{ id: 'feature2' }, { id: 'feature3' }],
+          skills: ['skill2', 'skill3']
         }
       ];
 
@@ -71,7 +75,8 @@ describe('server/stdio_server/server', () => {
       expect(configure).toHaveBeenCalledWith({
         name: 'server1,server2',
         path: '/stdio',
-        features: [{ id: 'feature1' }, { id: 'feature2' }, { id: 'feature3' }]
+        features: [{ id: 'feature1' }, { id: 'feature2' }, { id: 'feature3' }],
+        skills: ['skill1', 'skill2', 'skill3']
       });
       expect(initializeMcpServer).toHaveBeenCalledWith('server1,server2', mockTransport, mockConfigureCb);
     });
@@ -93,7 +98,36 @@ describe('server/stdio_server/server', () => {
       expect(configure).toHaveBeenCalledWith({
         name: 'server1',
         path: '/stdio',
-        features: []
+        features: [],
+        skills: []
+      });
+    });
+
+    it('should handle missing skills property correctly', async () => {
+      // Arrange
+      const config = [
+        {
+          name: 'server1',
+          path: '/path1',
+          features: [{ id: 'feature1' }]
+        },
+        {
+          name: 'server2',
+          path: '/path2',
+          features: [{ id: 'feature2' }],
+          skills: ['skill1']
+        }
+      ];
+
+      // Act
+      await start(config as any);
+
+      // Assert
+      expect(configure).toHaveBeenCalledWith({
+        name: 'server1,server2',
+        path: '/stdio',
+        features: [{ id: 'feature1' }, { id: 'feature2' }],
+        skills: ['skill1']
       });
     });
 

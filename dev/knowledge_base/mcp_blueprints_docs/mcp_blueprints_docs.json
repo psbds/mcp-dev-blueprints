@@ -37,12 +37,14 @@
     "resources": [
         {
             "id": "mcp_blueprint_github_repo",
+            "uri": "mcp://resources/mcp_blueprint_github_repo",
             "title": "MCP Blueprints GitHub Repository",
             "description": "Access the official MCP Blueprints GitHub repository for source code, documentation, and updates.",
+            "mimeType": "text/plain",
             "content": [
                 {
-                    "type": "resource_link",
-                    "url": "https://github.com/psbds/mcp-dev-blueprints"
+                    "type": "uri",
+                    "uri": "https://github.com/psbds/mcp-dev-blueprints"
                 }
             ]
         }

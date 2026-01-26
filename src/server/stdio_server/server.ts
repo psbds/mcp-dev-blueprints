@@ -8,7 +8,8 @@ export default async function start(config: ServerConfig[]) {
     const mergedConfig: ServerConfig = {
         name: config.map(c => c.name).join(","),
         path: "/stdio",
-        features: config.flatMap(c => c.features)
+        features: config.flatMap(c => c.features),
+        skills: config.flatMap(c => c.skills || [])
     };
     const configureCb = configure(mergedConfig);
     await initializeMcpServer(mergedConfig.name, transport, configureCb);

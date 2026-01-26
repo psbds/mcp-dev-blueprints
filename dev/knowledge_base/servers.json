@@ -5,6 +5,11 @@
         "features": [
             "azure/azure_features.json",
             "mcp_blueprints_docs/mcp_blueprints_docs.json"
+        ],
+        "skills": [
+            "skills/github-actions-debugging.md",
+            "skills/code-review.md",
+            "skills/docs/*.md"
         ]
     }
 ]
