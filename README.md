@@ -145,6 +145,7 @@ Obs: Make sure you're running your http server from the guide above
                     "dev/knowledge_base", // Your Kb path here
                     "--mode",
                     "stdio"
+                    // Optional: Add "--scope", "server1,server2" to load only specific servers
                 ]
             }
         }

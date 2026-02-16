@@ -67,10 +67,59 @@ The foundation of your MCP setup - defines which servers are available and how t
 
 | Property | Type | Required | Description | Example | Notes |
 |----------|------|----------|-------------|---------|--------|
-| `name` | string | ✅ | Unique server identifier | `"company-standards"` | Used internally and in client configurations |
+| `name` | string | ✅ | Unique server identifier | `"company-standards"` | Used internally and in client configurations. Also used for filtering with `--scope` parameter |
 | `path` | string | ✅ | URL path segment for HTTP routing | `"company-standards"` | Appears in `http://localhost:3000/{path}` |
 | `features` | array | ✅ | List of feature files to load | `["coding/rules.json"]` | Paths relative to knowledge base directory |
 | `skills` | array | ❌ | List of skill files or glob patterns | `["skills/*.md", "docs/**/*.md"]` | Optional. Paths relative to knowledge base directory |
+
+### Filtering Servers with --scope
+
+You can control which servers are loaded at startup using the `--scope` parameter. This is useful when:
+- You have multiple servers but only need specific ones
+- You want to reduce startup time by loading fewer servers
+- You're testing individual servers during development
+
+**Example**: Given this `servers.json`:
+```json
+[
+    {
+        "name": "java-standards",
+        "path": "java-standards",
+        "features": ["java/coding-rules.json"]
+    },
+    {
+        "name": "angular-standards",
+        "path": "angular-standards",
+        "features": ["angular/best-practices.json"]
+    },
+    {
+        "name": "devops-standards",
+        "path": "devops-standards",
+        "features": ["devops/deployment-guide.json"]
+    }
+]
+```
+
+**Load all servers** (default behavior):
+```bash
+npx mcp-dev-blueprints --kb-path . --mode stdio
+```
+
+**Load only java-standards**:
+```bash
+npx mcp-dev-blueprints --kb-path . --mode stdio --scope java-standards
+```
+
+**Load java-standards and angular-standards**:
+```bash
+npx mcp-dev-blueprints --kb-path . --mode stdio --scope java-standards,angular-standards
+```
+
+The `--scope` parameter:
+- Uses exact name matching (case-sensitive)
+- Accepts comma-separated values
+- Filters servers before they're loaded (efficient)
+- Does not affect unscoped server behavior
 
 ### Real-World Server Examples
 
