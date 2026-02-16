@@ -8,14 +8,20 @@ export default async function boot(override_kb_path?: string) {
     
     const configManager = getConfigManager();
     const serversConfig = configManager.loadServersConfig();
+    const scope = configManager.getScope();
+
+    // Filter servers based on scope if provided
+    const filteredServers = scope 
+        ? serversConfig.filter(server => scope.includes(server.name))
+        : serversConfig;
 
     if (configManager.getMode() === "http") {
-        await boot_http(serversConfig);
+        await boot_http(filteredServers);
         return;
     }
 
     if (configManager.getMode() === "stdio") {
-        await boot_stdio(serversConfig);
+        await boot_stdio(filteredServers);
         return;
     }
 

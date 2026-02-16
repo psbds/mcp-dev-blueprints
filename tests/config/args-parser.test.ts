@@ -98,13 +98,21 @@ describe('config/args-parser', () => {
           alias: 'm',
           choices: ['http', 'stdio']
         });
+        expect(mockYargsInstance.option).toHaveBeenCalledWith('scope', {
+          type: 'string',
+          demandOption: false,
+          describe: 'Comma-separated list of server names to load (if not provided, all servers are loaded)',
+          alias: 's'
+        });
         expect(mockConfigManager.initializeConfigManager).toHaveBeenCalledWith(
           '/resolved/test/knowledge_base',
-          'stdio'
+          'stdio',
+          undefined
         );
         expect(result).toEqual({
           kbPath: '/resolved/test/knowledge_base',
-          mode: 'stdio'
+          mode: 'stdio',
+          scope: undefined
         });
       });
     });
@@ -133,11 +141,13 @@ describe('config/args-parser', () => {
         });
         expect(mockConfigManager.initializeConfigManager).toHaveBeenCalledWith(
           '/resolved/override/knowledge_base',
-          'http'
+          'http',
+          undefined
         );
         expect(result).toEqual({
           kbPath: '/resolved/override/knowledge_base',
-          mode: 'http'
+          mode: 'http',
+          scope: undefined
         });
       });
     });
@@ -159,7 +169,8 @@ describe('config/args-parser', () => {
         expect(result.mode).toBe('http');
         expect(mockConfigManager.initializeConfigManager).toHaveBeenCalledWith(
           '/resolved/test/kb',
-          'http'
+          'http',
+          undefined
         );
       });
     });
@@ -181,7 +192,119 @@ describe('config/args-parser', () => {
         expect(result.mode).toBe('stdio');
         expect(mockConfigManager.initializeConfigManager).toHaveBeenCalledWith(
           '/resolved/test/kb',
-          'stdio'
+          'stdio',
+          undefined
+        );
+      });
+    });
+
+    describe('when using scope parameter', () => {
+      it('should parse single scope value', () => {
+        // Arrange
+        const expectedArgs = {
+          'kb-path': '/test/kb',
+          mode: 'stdio',
+          scope: 'java-standards',
+        };
+        mockYargsInstance.parseSync.mockReturnValue(expectedArgs);
+        mockResolve.mockReturnValue('/resolved/test/kb');
+
+        // Act
+        const result = loadConfig();
+
+        // Assert
+        expect(result.scope).toEqual(['java-standards']);
+        expect(mockConfigManager.initializeConfigManager).toHaveBeenCalledWith(
+          '/resolved/test/kb',
+          'stdio',
+          ['java-standards']
+        );
+      });
+
+      it('should parse multiple comma-separated scope values', () => {
+        // Arrange
+        const expectedArgs = {
+          'kb-path': '/test/kb',
+          mode: 'stdio',
+          scope: 'java-standards,angular-standards',
+        };
+        mockYargsInstance.parseSync.mockReturnValue(expectedArgs);
+        mockResolve.mockReturnValue('/resolved/test/kb');
+
+        // Act
+        const result = loadConfig();
+
+        // Assert
+        expect(result.scope).toEqual(['java-standards', 'angular-standards']);
+        expect(mockConfigManager.initializeConfigManager).toHaveBeenCalledWith(
+          '/resolved/test/kb',
+          'stdio',
+          ['java-standards', 'angular-standards']
+        );
+      });
+
+      it('should trim whitespace from scope values', () => {
+        // Arrange
+        const expectedArgs = {
+          'kb-path': '/test/kb',
+          mode: 'stdio',
+          scope: ' java-standards , angular-standards , devops-standards ',
+        };
+        mockYargsInstance.parseSync.mockReturnValue(expectedArgs);
+        mockResolve.mockReturnValue('/resolved/test/kb');
+
+        // Act
+        const result = loadConfig();
+
+        // Assert
+        expect(result.scope).toEqual(['java-standards', 'angular-standards', 'devops-standards']);
+        expect(mockConfigManager.initializeConfigManager).toHaveBeenCalledWith(
+          '/resolved/test/kb',
+          'stdio',
+          ['java-standards', 'angular-standards', 'devops-standards']
+        );
+      });
+
+      it('should filter out empty strings from scope values', () => {
+        // Arrange
+        const expectedArgs = {
+          'kb-path': '/test/kb',
+          mode: 'stdio',
+          scope: 'java-standards,,angular-standards',
+        };
+        mockYargsInstance.parseSync.mockReturnValue(expectedArgs);
+        mockResolve.mockReturnValue('/resolved/test/kb');
+
+        // Act
+        const result = loadConfig();
+
+        // Assert
+        expect(result.scope).toEqual(['java-standards', 'angular-standards']);
+        expect(mockConfigManager.initializeConfigManager).toHaveBeenCalledWith(
+          '/resolved/test/kb',
+          'stdio',
+          ['java-standards', 'angular-standards']
+        );
+      });
+
+      it('should return undefined when scope is not provided', () => {
+        // Arrange
+        const expectedArgs = {
+          'kb-path': '/test/kb',
+          mode: 'stdio',
+        };
+        mockYargsInstance.parseSync.mockReturnValue(expectedArgs);
+        mockResolve.mockReturnValue('/resolved/test/kb');
+
+        // Act
+        const result = loadConfig();
+
+        // Assert
+        expect(result.scope).toBeUndefined();
+        expect(mockConfigManager.initializeConfigManager).toHaveBeenCalledWith(
+          '/resolved/test/kb',
+          'stdio',
+          undefined
         );
       });
     });
@@ -307,11 +430,11 @@ describe('config/args-parser', () => {
 
       // Assert
       expect(mockYargsInstance.usage).toHaveBeenCalledWith(
-        'Usage: $0 --kb-path <path-to-knowledge-base> --mode <http|stdio>'
+        'Usage: $0 --kb-path <path-to-knowledge-base> --mode <http|stdio> [--scope <server-names>]'
       );
     });
 
-    it('should configure example correctly', () => {
+    it('should configure examples correctly', () => {
       // Act
       loadConfig();
 
@@ -319,6 +442,14 @@ describe('config/args-parser', () => {
       expect(mockYargsInstance.example).toHaveBeenCalledWith(
         '$0 --kb-path ./knowledge_base --mode stdio',
         'Use ./knowledge_base as the knowledge base directory with stdio mode'
+      );
+      expect(mockYargsInstance.example).toHaveBeenCalledWith(
+        '$0 --kb-path ./knowledge_base --mode stdio --scope java-standards',
+        'Load only the java-standards server'
+      );
+      expect(mockYargsInstance.example).toHaveBeenCalledWith(
+        '$0 --kb-path ./knowledge_base --mode stdio --scope java-standards,angular-standards',
+        'Load only java-standards and angular-standards servers'
       );
     });
 
@@ -414,11 +545,13 @@ describe('config/args-parser', () => {
       // Assert
       expect(result).toEqual({
         kbPath: '/resolved/custom/kb',
-        mode: 'http'
+        mode: 'http',
+        scope: undefined
       });
       expect(mockConfigManager.initializeConfigManager).toHaveBeenCalledWith(
         '/resolved/custom/kb',
-        'http'
+        'http',
+        undefined
       );
     });
 
