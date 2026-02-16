@@ -119,7 +119,7 @@ The `--scope` parameter:
 - Uses exact name matching (case-sensitive)
 - Accepts comma-separated values
 - Filters servers before they're loaded (efficient)
-- Does not affect unscoped server behavior
+- When omitted, all servers load (default behavior)
 
 ### Real-World Server Examples
 
