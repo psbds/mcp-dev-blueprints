@@ -547,17 +547,15 @@ describe('server/boot', () => {
       expect(mockBootHttp).not.toHaveBeenCalled();
     });
 
-    it('should pass empty array when scope does not match any server names', async () => {
+    it('should throw error when scope does not match any server names', async () => {
       // Arrange
       mockConfigManager.getMode.mockReturnValue('stdio');
       mockConfigManager.loadServersConfig.mockReturnValue(multipleServersConfig);
       mockConfigManager.getScope.mockReturnValue(['non-existent-server']);
 
-      // Act
-      await boot();
-
-      // Assert
-      expect(mockBootStdio).toHaveBeenCalledWith([]);
+      // Act & Assert
+      await expect(boot()).rejects.toThrow('No servers matched the provided scope: non-existent-server');
+      expect(mockBootStdio).not.toHaveBeenCalled();
       expect(mockBootHttp).not.toHaveBeenCalled();
     });
 
@@ -607,17 +605,15 @@ describe('server/boot', () => {
       ]);
     });
 
-    it('should be case-sensitive when matching server names', async () => {
+    it('should be case-sensitive when matching server names and throw when no match', async () => {
       // Arrange
       mockConfigManager.getMode.mockReturnValue('stdio');
       mockConfigManager.loadServersConfig.mockReturnValue(multipleServersConfig);
       mockConfigManager.getScope.mockReturnValue(['Java-Standards']); // Wrong case
 
-      // Act
-      await boot();
-
-      // Assert
-      expect(mockBootStdio).toHaveBeenCalledWith([]);
+      // Act & Assert
+      await expect(boot()).rejects.toThrow('No servers matched the provided scope: Java-Standards');
+      expect(mockBootStdio).not.toHaveBeenCalled();
       expect(mockBootHttp).not.toHaveBeenCalled();
     });
 

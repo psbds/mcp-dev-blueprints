@@ -15,6 +15,10 @@ export default async function boot(override_kb_path?: string) {
         ? serversConfig.filter(server => scope.includes(server.name))
         : serversConfig;
 
+    if (scope && filteredServers.length === 0) {
+        throw new Error(`No servers matched the provided scope: ${scope.join(", ")}`);
+    }
+
     if (configManager.getMode() === "http") {
         await boot_http(filteredServers);
         return;
