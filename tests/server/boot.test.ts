@@ -1,13 +1,14 @@
 import { jest } from '@jest/globals';
 
 // Mock dependencies before importing the module under test
-const mockLoadConfig = jest.fn() as jest.MockedFunction<(override_kb_path?: string) => { kbPath: string; mode: string }>;
+const mockLoadConfig = jest.fn() as jest.MockedFunction<(override_kb_path?: string) => { kbPath: string; mode: string; scope?: string[] }>;
 const mockBootHttp = jest.fn() as jest.MockedFunction<(serversConfig: any[]) => Promise<void>>;
 const mockBootStdio = jest.fn() as jest.MockedFunction<(serversConfig: any[]) => Promise<void>>;
 
 const mockConfigManager = {
   loadServersConfig: jest.fn(),
-  getMode: jest.fn()
+  getMode: jest.fn(),
+  getScope: jest.fn()
 };
 
 const mockGetConfigManager = jest.fn(() => mockConfigManager);
@@ -40,6 +41,7 @@ describe('server/boot', () => {
     mockGetConfigManager.mockReturnValue(mockConfigManager);
     mockConfigManager.loadServersConfig.mockReturnValue(mockServersConfig);
     mockConfigManager.getMode.mockReturnValue('stdio');
+    mockConfigManager.getScope.mockReturnValue(undefined);
     mockBootHttp.mockResolvedValue(undefined);
     mockBootStdio.mockResolvedValue(undefined);
   });
@@ -464,6 +466,199 @@ describe('server/boot', () => {
         'loadServersConfig'
       ]);
       expect(callOrder).not.toContain('bootStdio');
+    });
+  });
+
+  describe('Scope filtering', () => {
+    const multipleServersConfig: ServerConfig[] = [
+      {
+        name: 'java-standards',
+        path: '/api/java-standards',
+        features: ['java-features.json']
+      },
+      {
+        name: 'angular-standards',
+        path: '/api/angular-standards',
+        features: ['angular-features.json']
+      },
+      {
+        name: 'devops-standards',
+        path: '/api/devops-standards',
+        features: ['devops-features.json']
+      }
+    ];
+
+    it('should pass all servers when no scope is provided', async () => {
+      // Arrange
+      mockConfigManager.getMode.mockReturnValue('stdio');
+      mockConfigManager.loadServersConfig.mockReturnValue(multipleServersConfig);
+      mockConfigManager.getScope.mockReturnValue(undefined);
+
+      // Act
+      await boot();
+
+      // Assert
+      expect(mockBootStdio).toHaveBeenCalledWith(multipleServersConfig);
+      expect(mockBootHttp).not.toHaveBeenCalled();
+    });
+
+    it('should filter servers to single matching name when scope has one value', async () => {
+      // Arrange
+      mockConfigManager.getMode.mockReturnValue('stdio');
+      mockConfigManager.loadServersConfig.mockReturnValue(multipleServersConfig);
+      mockConfigManager.getScope.mockReturnValue(['java-standards']);
+
+      // Act
+      await boot();
+
+      // Assert
+      expect(mockBootStdio).toHaveBeenCalledWith([
+        {
+          name: 'java-standards',
+          path: '/api/java-standards',
+          features: ['java-features.json']
+        }
+      ]);
+      expect(mockBootHttp).not.toHaveBeenCalled();
+    });
+
+    it('should filter servers to multiple matching names when scope has multiple values', async () => {
+      // Arrange
+      mockConfigManager.getMode.mockReturnValue('stdio');
+      mockConfigManager.loadServersConfig.mockReturnValue(multipleServersConfig);
+      mockConfigManager.getScope.mockReturnValue(['java-standards', 'angular-standards']);
+
+      // Act
+      await boot();
+
+      // Assert
+      expect(mockBootStdio).toHaveBeenCalledWith([
+        {
+          name: 'java-standards',
+          path: '/api/java-standards',
+          features: ['java-features.json']
+        },
+        {
+          name: 'angular-standards',
+          path: '/api/angular-standards',
+          features: ['angular-features.json']
+        }
+      ]);
+      expect(mockBootHttp).not.toHaveBeenCalled();
+    });
+
+    it('should throw error when scope does not match any server names', async () => {
+      // Arrange
+      mockConfigManager.getMode.mockReturnValue('stdio');
+      mockConfigManager.loadServersConfig.mockReturnValue(multipleServersConfig);
+      mockConfigManager.getScope.mockReturnValue(['non-existent-server']);
+
+      // Act & Assert
+      await expect(boot()).rejects.toThrow('No servers matched the provided scope: non-existent-server');
+      expect(mockBootStdio).not.toHaveBeenCalled();
+      expect(mockBootHttp).not.toHaveBeenCalled();
+    });
+
+    it('should filter servers for HTTP mode when scope is provided', async () => {
+      // Arrange
+      mockConfigManager.getMode.mockReturnValue('http');
+      mockConfigManager.loadServersConfig.mockReturnValue(multipleServersConfig);
+      mockConfigManager.getScope.mockReturnValue(['devops-standards']);
+
+      // Act
+      await boot();
+
+      // Assert
+      expect(mockBootHttp).toHaveBeenCalledWith([
+        {
+          name: 'devops-standards',
+          path: '/api/devops-standards',
+          features: ['devops-features.json']
+        }
+      ]);
+      expect(mockBootStdio).not.toHaveBeenCalled();
+    });
+
+    it('should maintain server order from config when filtering', async () => {
+      // Arrange
+      mockConfigManager.getMode.mockReturnValue('stdio');
+      mockConfigManager.loadServersConfig.mockReturnValue(multipleServersConfig);
+      // Intentionally provide scope in different order than config
+      mockConfigManager.getScope.mockReturnValue(['devops-standards', 'java-standards']);
+
+      // Act
+      await boot();
+
+      // Assert
+      // Should maintain order from serversConfig, not from scope
+      expect(mockBootStdio).toHaveBeenCalledWith([
+        {
+          name: 'java-standards',
+          path: '/api/java-standards',
+          features: ['java-features.json']
+        },
+        {
+          name: 'devops-standards',
+          path: '/api/devops-standards',
+          features: ['devops-features.json']
+        }
+      ]);
+    });
+
+    it('should be case-sensitive when matching server names and throw when no match', async () => {
+      // Arrange
+      mockConfigManager.getMode.mockReturnValue('stdio');
+      mockConfigManager.loadServersConfig.mockReturnValue(multipleServersConfig);
+      mockConfigManager.getScope.mockReturnValue(['Java-Standards']); // Wrong case
+
+      // Act & Assert
+      await expect(boot()).rejects.toThrow('No servers matched the provided scope: Java-Standards');
+      expect(mockBootStdio).not.toHaveBeenCalled();
+      expect(mockBootHttp).not.toHaveBeenCalled();
+    });
+
+    it('should filter correctly when scope contains duplicate values', async () => {
+      // Arrange
+      mockConfigManager.getMode.mockReturnValue('stdio');
+      mockConfigManager.loadServersConfig.mockReturnValue(multipleServersConfig);
+      mockConfigManager.getScope.mockReturnValue(['java-standards', 'java-standards']);
+
+      // Act
+      await boot();
+
+      // Assert
+      // Should only include the server once even though scope has duplicates
+      expect(mockBootStdio).toHaveBeenCalledWith([
+        {
+          name: 'java-standards',
+          path: '/api/java-standards',
+          features: ['java-features.json']
+        }
+      ]);
+    });
+
+    it('should filter correctly with mixed matching and non-matching values', async () => {
+      // Arrange
+      mockConfigManager.getMode.mockReturnValue('stdio');
+      mockConfigManager.loadServersConfig.mockReturnValue(multipleServersConfig);
+      mockConfigManager.getScope.mockReturnValue(['java-standards', 'non-existent', 'angular-standards']);
+
+      // Act
+      await boot();
+
+      // Assert
+      expect(mockBootStdio).toHaveBeenCalledWith([
+        {
+          name: 'java-standards',
+          path: '/api/java-standards',
+          features: ['java-features.json']
+        },
+        {
+          name: 'angular-standards',
+          path: '/api/angular-standards',
+          features: ['angular-features.json']
+        }
+      ]);
     });
   });
 });

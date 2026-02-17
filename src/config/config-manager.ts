@@ -9,10 +9,12 @@ import { readJsonWithCacheFromBase, readFileWithCacheFromBase } from "../utils/f
 export class ConfigManager {
     private kbPath: string;
     private mode: string;
+    private scope?: string[];
 
-    constructor(kbPath: string, mode: string) {
+    constructor(kbPath: string, mode: string, scope?: string[]) {
         this.kbPath = kbPath;
         this.mode = mode;
+        this.scope = scope;
     }
 
     /**
@@ -61,6 +63,14 @@ export class ConfigManager {
     }
 
     /**
+     * Get the scope filter
+     * @returns Array of server names to filter, or undefined if no scope is set
+     */
+    getScope(): string[] | undefined {
+        return this.scope;
+    }
+
+    /**
      * Get the full path to a feature definition file
      * @param featurePath - Relative path to the feature definition file
      * @returns Absolute path to the feature definition file
@@ -106,9 +116,10 @@ let _configManager: ConfigManager | null = null;
  * Initialize the global configuration manager
  * @param kbPath - The absolute path to the knowledge base directory
  * @param mode - The server mode (http or stdio)
+ * @param scope - Optional array of server names to filter
  */
-export function initializeConfigManager(kbPath: string, mode: string): void {
-    _configManager = new ConfigManager(kbPath, mode);
+export function initializeConfigManager(kbPath: string, mode: string, scope?: string[]): void {
+    _configManager = new ConfigManager(kbPath, mode, scope);
 }
 
 /**

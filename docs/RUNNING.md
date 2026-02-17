@@ -97,16 +97,28 @@ For production deployment, check the documentation on [Building For Production](
 | Argument | Short | Description | Example |
 |----------|-------|-------------|---------|
 | `--kb-path` | `-k` | Path to knowledge base directory | `--kb-path ./knowledge-base` |
-| `--mode` | `-m` | `http` | Server mode (`http` or `stdio`) | `--mode stdio` |
+| `--mode` | `-m` | Server mode (`http` or `stdio`) | `--mode stdio` |
+
+### Optional Arguments
+
+| Argument | Short | Description | Example |
+|----------|-------|-------------|---------|
+| `--scope` | `-s` | Comma-separated list of server names to load (if not provided, all servers are loaded) | `--scope java-standards,angular-standards` |
 
 ### Example Commands
 
 ```bash
-# Minimal startup
+# Minimal startup (all servers)
 npx mcp-dev-blueprints --kb-path . --mode stdio
 
-# Custom port and verbose logging  
-npx mcp-dev-blueprints --kb-path ./kb --mode http
+# Load only specific servers
+npx mcp-dev-blueprints --kb-path . --mode stdio --scope java-standards
+
+# Load multiple specific servers
+npx mcp-dev-blueprints --kb-path ./kb --mode http --scope java-standards,angular-standards
+
+# Custom port with filtered servers
+HTTP_PORT=8080 npx mcp-dev-blueprints --kb-path ./kb --mode http --scope platform-tools
 ```
 
 ---

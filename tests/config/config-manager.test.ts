@@ -43,6 +43,24 @@ describe('config/config-manager', () => {
         expect(instance.getKnowledgeBasePath()).toBe('/custom/path');
         expect(instance.getMode()).toBe('http');
       });
+
+      it('should initialize with scope when provided', () => {
+        // Act
+        const instance = new ConfigManager('/custom/path', 'http', ['server1', 'server2']);
+
+        // Assert
+        expect(instance.getKnowledgeBasePath()).toBe('/custom/path');
+        expect(instance.getMode()).toBe('http');
+        expect(instance.getScope()).toEqual(['server1', 'server2']);
+      });
+
+      it('should initialize with undefined scope when not provided', () => {
+        // Act
+        const instance = new ConfigManager('/custom/path', 'http');
+
+        // Assert
+        expect(instance.getScope()).toBeUndefined();
+      });
     });
 
     describe('loadServersConfig', () => {
@@ -274,6 +292,24 @@ describe('config/config-manager', () => {
           expect(configManager).toBeInstanceOf(ConfigManager);
           expect(configManager.getKnowledgeBasePath()).toBe(kbPath);
           expect(configManager.getMode()).toBe(mode);
+          expect(configManager.getScope()).toBeUndefined();
+        });
+
+        it('should initialize global config manager with scope parameter', () => {
+          // Arrange
+          const kbPath = '/global/test/path';
+          const mode = 'http';
+          const scope = ['server1', 'server2'];
+
+          // Act
+          initializeConfigManager(kbPath, mode, scope);
+          const configManager = getConfigManager();
+
+          // Assert
+          expect(configManager).toBeInstanceOf(ConfigManager);
+          expect(configManager.getKnowledgeBasePath()).toBe(kbPath);
+          expect(configManager.getMode()).toBe(mode);
+          expect(configManager.getScope()).toEqual(scope);
         });
 
         it('should allow re-initialization with different parameters', () => {
@@ -281,12 +317,13 @@ describe('config/config-manager', () => {
           initializeConfigManager('/first/path', 'stdio');
 
           // Act
-          initializeConfigManager('/second/path', 'http');
+          initializeConfigManager('/second/path', 'http', ['server-x']);
           const configManager = getConfigManager();
 
           // Assert
           expect(configManager.getKnowledgeBasePath()).toBe('/second/path');
           expect(configManager.getMode()).toBe('http');
+          expect(configManager.getScope()).toEqual(['server-x']);
         });
       });
 

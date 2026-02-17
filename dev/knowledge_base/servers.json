@@ -11,5 +11,13 @@
             "skills/code-review.md",
             "skills/docs/*.md"
         ]
+    },
+     {
+        "name": "angular",
+        "path": "angular",
+        "features": [],
+        "skills": [
+            "skills/angular.md"
+        ]
     }
 ]
