@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/psbds/mcp-dev-blueprints/compare/v1.1.0...v1.2.0) (2026-02-17)
+
+
+### Features
+
+* add scope validation ([1daaa49](https://github.com/psbds/mcp-dev-blueprints/commit/1daaa49dd292c4abaf854b0b9bee9ddaad2de9fd))
+
 # [1.1.0](https://github.com/psbds/mcp-dev-blueprints/compare/v1.0.1...v1.1.0) (2026-01-26)
 
 
